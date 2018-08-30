@@ -1,0 +1,5 @@
+name: Maps
+version: "1.0"
+api: ["1.0.0"]
+author: PetteriM1
+main: idk.plugin.maps.Main
