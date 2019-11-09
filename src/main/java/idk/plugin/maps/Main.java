@@ -18,8 +18,6 @@ public class Main extends PluginBase implements Listener {
 
     public void onEnable() {
         getServer().getPluginManager().registerEvents(this, this);
-        saveDefaultConfig();
-        getConfig();
     }
 
     @EventHandler
