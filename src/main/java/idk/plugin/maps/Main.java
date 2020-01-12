@@ -43,7 +43,8 @@ public class Main extends PluginBase implements Listener {
     }
 
     @EventHandler
-    public boolean onInteract(PlayerInteractEvent e) {
+    public void onInteract(PlayerInteractEvent e) {
+        if (e.getAction() == PlayerInteractEvent.Action.PHYSICAL) return;
         Player p = e.getPlayer();
         Item i = e.getItem();
         if (i.getId() == Item.EMPTY_MAP) {
@@ -58,7 +59,7 @@ public class Main extends PluginBase implements Listener {
                 p.getInventory().addItem(new ItemMap());
             }
         }
-        return true;
+        return;
     }
 
     private int getColorAt(Level l, int x, int z) {
