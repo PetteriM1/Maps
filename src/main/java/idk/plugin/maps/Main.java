@@ -12,11 +12,9 @@ import cn.nukkit.item.ItemMap;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.plugin.PluginBase;
-import cn.nukkit.scheduler.NukkitRunnable;
 import cn.nukkit.utils.BlockColor;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class Main extends PluginBase implements Listener {
@@ -49,17 +47,11 @@ public class Main extends PluginBase implements Listener {
         Item i = e.getItem();
         if (i.getId() == Item.EMPTY_MAP) {
             if (!p.isCreative()) {
-                new NukkitRunnable() {
-                    public void run() {
-                        p.getInventory().removeItem(i);
-                        p.getInventory().addItem(new ItemMap());
-                    }
-                }.runTaskLater(null, 1);
-            } else {
-                p.getInventory().addItem(new ItemMap());
+                p.getInventory().decreaseCount(p.getInventory().getHeldItemIndex());
             }
+
+            p.getInventory().addItem(new ItemMap());
         }
-        return;
     }
 
     private int getColorAt(Level l, int x, int z) {
