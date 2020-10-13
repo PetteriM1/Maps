@@ -1,4 +1,4 @@
-package idk.plugin.maps;
+package me.petterim1.maps;
 
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
@@ -8,7 +8,7 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.event.player.PlayerMapInfoRequestEvent;
 import cn.nukkit.item.Item;
-import cn.nukkit.item.ItemMap;
+import cn.nukkit.item.ItemID;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.plugin.PluginBase;
@@ -19,64 +19,27 @@ import java.awt.image.BufferedImage;
 
 public class Main extends PluginBase implements Listener {
 
-    public void onEnable() {
-        getServer().getPluginManager().registerEvents(this, this);
-    }
-
-    @EventHandler
-    public void mapInfo(PlayerMapInfoRequestEvent e) {
-        Player p = e.getPlayer();
-        ItemMap map = (ItemMap) e.getMap();
-        BufferedImage image = new BufferedImage(128, 128, BufferedImage.TYPE_INT_RGB);
-		try {
-            Graphics2D graphics = image.createGraphics();
-            for (int x = 0; x < 128; x++) {
-                for (int y = 0; y < 128; y++) {
-                    graphics.setColor(new Color(getColorAt(p.getLevel(), p.getFloorX() - 64 + x, p.getFloorZ() - 64 + y)));
-                    graphics.fillRect(x, y, x, y);
-                }
-            }
-		} catch (Exception ignored) {}
-        map.setImage(image);
-    }
-
-    @EventHandler
-    public void onInteract(PlayerInteractEvent e) {
-        if (e.getAction() == PlayerInteractEvent.Action.PHYSICAL) return;
-        Player p = e.getPlayer();
-        Item i = e.getItem();
-        if (i.getId() == Item.EMPTY_MAP) {
-            if (!p.isCreative()) {
-                p.getInventory().decreaseCount(p.getInventory().getHeldItemIndex());
-            }
-
-            p.getInventory().addItem(new ItemMap());
-        }
-    }
-
-    private int getColorAt(Level l, int x, int z) {
+    private static int getColorAt(Level l, int x, int z) {
         int y = l.getHighestBlockAt(x, z);
-
         while (y > 1) {
-                Block block = l.getBlock(new Vector3(x, y, z));
-                if (block instanceof BlockGrass) {
-                    return getGrassColorAt(l, x, z);
+            Block block = l.getBlock(new Vector3(x, y, z));
+            if (block instanceof BlockGrass) {
+                return getGrassColorAt(l, x, z);
+            } else {
+                BlockColor blockColor = block.getColor();
+                if (blockColor.getAlpha() == 0x00) {
+                    y--;
                 } else {
-                    BlockColor blockColor = block.getColor();
-                    if (blockColor.getAlpha() == 0x00) {
-                        y--;
-                    } else {
-                        return blockColor.getRGB();
-                    }
+                    return blockColor.getRGB();
                 }
             }
+        }
 
         return BlockColor.VOID_BLOCK_COLOR.getRGB();
     }
 
-    private int getGrassColorAt(Level l, int x, int z) {
+    private static int getGrassColorAt(Level l, int x, int z) {
         int biome = l.getBiomeId(x, z);
-
         switch (biome) {
             case 0:
             case 7:
@@ -157,10 +120,50 @@ public class Main extends PluginBase implements Listener {
         }
     }
 
-    private int getColor(String c) {
+    private static int getColor(String c) {
         int red = Integer.valueOf(c.substring(1, 3), 16);
         int green = Integer.valueOf(c.substring(3, 5), 16);
         int blue = Integer.valueOf(c.substring(5, 7), 16);
         return (red << 16 | green << 8 | blue) & 0xffffff;
+    }
+
+    public void onEnable() {
+        Item.list[ItemID.MAP] = ItemMapC.class;
+        getServer().getPluginManager().registerEvents(this, this);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onMapInfoRequest(PlayerMapInfoRequestEvent e) {
+        Player p = e.getPlayer();
+        ItemMapC map = (ItemMapC) e.getMap();
+        if (map.trySendImage(p)) {
+            return;
+        }
+        BufferedImage image = new BufferedImage(128, 128, BufferedImage.TYPE_INT_RGB);
+        try {
+            Graphics2D graphics = image.createGraphics();
+            for (int x = 0; x < 128; x++) {
+                for (int y = 0; y < 128; y++) {
+                    graphics.setColor(new Color(getColorAt(p.getLevel(), p.getFloorX() - 64 + x, p.getFloorZ() - 64 + y)));
+                    graphics.fillRect(x, y, x, y);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        map.setImage(image);
+        map.sendImage(p);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onInteract(PlayerInteractEvent e) {
+        if (e.getAction() == PlayerInteractEvent.Action.PHYSICAL) return;
+        Player p = e.getPlayer();
+        Item i = e.getItem();
+        if (i.getId() == ItemID.EMPTY_MAP && !p.isSpectator()) {
+            if (!p.isCreative()) {
+                p.getInventory().decreaseCount(p.getInventory().getHeldItemIndex());
+            }
+            p.getInventory().addItem(new ItemMapC());
+        }
     }
 }

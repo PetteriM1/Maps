@@ -2,4 +2,4 @@ name: Maps
 version: "${project.version}"
 api: ["1.0.8"]
 author: PetteriM1
-main: idk.plugin.maps.Main
+main: me.petterim1.maps.Main
