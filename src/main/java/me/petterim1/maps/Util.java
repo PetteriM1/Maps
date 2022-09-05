@@ -25,7 +25,6 @@ public class Util {
                 }
             }
         }
-
         return BlockColor.VOID_BLOCK_COLOR.getRGB();
     }
 

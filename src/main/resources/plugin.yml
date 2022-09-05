@@ -1,5 +1,5 @@
 name: Maps
 version: "${project.version}"
-api: ["1.0.8"]
+api: ["1.0.14"]
 author: PetteriM1
 main: me.petterim1.maps.Main

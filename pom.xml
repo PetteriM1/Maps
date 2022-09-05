@@ -6,7 +6,7 @@
 
     <groupId>me.petterim1.maps</groupId>
     <artifactId>Maps</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <build>
         <defaultGoal>install</defaultGoal>
         <sourceDirectory>${basedir}/src/main/java</sourceDirectory>

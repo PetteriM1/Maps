@@ -8,7 +8,6 @@ import cn.nukkit.event.player.PlayerMapInfoRequestEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemID;
 import cn.nukkit.item.ItemMap;
-import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
 
@@ -18,10 +17,13 @@ import java.awt.image.BufferedImage;
 public class Main extends PluginBase implements Listener {
 
     public void onEnable() {
+        if (!getServer().getName().equals("Nukkit")) {
+            getLogger().error("Incompatible server software!");
+            return;
+        }
         saveDefaultConfig();
         ItemMap.mapCount = getConfig().getInt("map_count_do_not_edit");
         Item.list[ItemID.MAP] = ItemMapC.class;
-        getServer().getNetwork().registerPacket(ProtocolInfo.CLIENTBOUND_MAP_ITEM_DATA_PACKET, ClientboundMapItemDataPacketC.class);
         getServer().getPluginManager().registerEvents(this, this);
     }
 
@@ -61,12 +63,11 @@ public class Main extends PluginBase implements Listener {
     public void onInteract(PlayerInteractEvent e) {
         if (e.getAction() == PlayerInteractEvent.Action.PHYSICAL) return;
         Player p = e.getPlayer();
-        Item i = e.getItem();
-        if (i.getId() == ItemID.EMPTY_MAP && !p.isSpectator()) {
+        if (e.getItem().getId() == ItemID.EMPTY_MAP && !p.isSpectator()) {
             if (!p.isCreative()) {
                 p.getInventory().decreaseCount(p.getInventory().getHeldItemIndex());
             }
-            p.getInventory().addItem(new ItemMapC());
+            p.getInventory().addItem(new ItemMapC().initItem());
         }
     }
 }
