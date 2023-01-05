@@ -97,6 +97,7 @@ public class ItemMapC extends ItemMap {
         pk.offsetX = 0;
         pk.offsetZ = 0;
         pk.image = image;
+        pk.eids = new int[]{(int) pk.mapId};
         p.dataPacket(pk);
         Server.getInstance().getScheduler().scheduleDelayedTask(null, () -> p.dataPacket(pk), 20);
     }
@@ -113,21 +114,29 @@ public class ItemMapC extends ItemMap {
         pk.offsetX = 0;
         pk.offsetZ = 0;
         pk.image = image;
+        pk.eids = new int[]{(int) pk.mapId};
         p.dataPacket(pk);
         Server.getInstance().getScheduler().scheduleDelayedTask(null, () -> p.dataPacket(pk), 20);
         return true;
     }
 
     public Item initItem() {
-        long id;
         CompoundTag compoundTag = this.getNamedTag();
         if (compoundTag == null || !compoundTag.contains("map_uuid")) {
             CompoundTag tag = new CompoundTag();
             mapCount++;
             tag.putLong("map_uuid", mapCount);
+            tag.putInt("map_name_index", mapCount);
             this.setNamedTag(tag);
-        } else if ((id = getMapId()) > mapCount) {
-            mapCount = (int) id;
+        } else {
+            long id;
+            if ((id = getMapId()) > mapCount) {
+                mapCount = (int) id;
+            }
+            if (!(compoundTag = this.getNamedTag()).contains("map_name_index")) {
+                compoundTag.putInt("map_name_index", (int) id);
+                this.setNamedTag(compoundTag);
+            }
         }
         return this;
     }
