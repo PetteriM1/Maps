@@ -7,6 +7,8 @@ import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BlockColor;
 
+import java.awt.*;
+
 public class Util {
 
     static int getColorAt(Level l, int x, int z) {
@@ -124,5 +126,25 @@ public class Util {
             }
         }
         return 0;
+    }
+
+    static Color colorizeMapColor(BlockColor color, int level) {
+        int depth;
+
+        if (level == 2) {
+            depth = 255;
+        } else if (level == 1) {
+            depth = 220;
+        } else if (level == 0) {
+            depth = 180;
+        } else {
+            throw new IllegalArgumentException("Invalid level: " + level);
+        }
+
+        int r = color.getRed() * depth / 255;
+        int g = color.getGreen() * depth / 255;
+        int b = color.getBlue() * depth / 255;
+
+        return new Color(r, g, b);
     }
 }

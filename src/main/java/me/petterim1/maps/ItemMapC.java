@@ -99,7 +99,6 @@ public class ItemMapC extends ItemMap {
         pk.image = image;
         pk.eids = new int[]{(int) pk.mapId};
         p.dataPacket(pk);
-        Server.getInstance().getScheduler().scheduleDelayedTask(null, () -> p.dataPacket(pk), 20);
     }
 
     public boolean trySendImage(Player p) {
@@ -116,7 +115,6 @@ public class ItemMapC extends ItemMap {
         pk.image = image;
         pk.eids = new int[]{(int) pk.mapId};
         p.dataPacket(pk);
-        Server.getInstance().getScheduler().scheduleDelayedTask(null, () -> p.dataPacket(pk), 20);
         return true;
     }
 

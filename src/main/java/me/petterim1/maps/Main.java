@@ -44,11 +44,26 @@ public class Main extends PluginBase implements Listener {
         BufferedImage image = new BufferedImage(128, 128, BufferedImage.TYPE_INT_RGB);
         try {
             Graphics2D graphics = image.createGraphics();
-            int worldX = (p.getFloorX () / 128) << 7;
-            int worldZ = (p.getFloorZ () / 128) << 7;
+            int wX = (Math.floorDiv(p.getFloorX(), 128)) << 7;
+            int wZ = (Math.floorDiv(p.getFloorZ(), 128)) << 7;
             for (int x = 0; x < 128; x++) {
-                for (int y = 0; y < 128; y++) {
-                    graphics.setColor(new Color(Util.getColorAt(p.getLevel(), worldX + x, worldZ + y)));
+                int avgY = 0;
+                for (int y = -1; y < 128; y++) {
+                    if (y == -1) {
+                        avgY = p.getLevel().getHighestBlockAt(wX + x, wZ);
+                        continue;
+                    }
+                    int wY = p.getLevel().getHighestBlockAt(wX + x, wZ + y);
+                    double avgYD = (wY - avgY) * 4 / 5 + ((x + y & 1) - 0.5) * 0.4;
+                    int depth = 1;
+                    if (avgYD > 0.6) {
+                        depth = 2;
+                    }
+                    if (avgYD < -0.6) {
+                        depth = 0;
+                    }
+                    avgY = wY;
+                    graphics.setColor(Util.colorizeMapColor(p.getLevel().getMapColorAt(wX + x, wZ + y), depth));
                     graphics.fillRect(x, y, x + 1, y + 1);
                 }
             }
